@@ -17,6 +17,83 @@
 <body>
   <h1>E-Boy Stuff</h1>
   <hr>
+<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing Example</title>
+</head>
+<body>
+    <input type="file" id="uploadImage" />
+    <script>
+        document.getElementById('uploadImage').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        processImage(img);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function processImage(img) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            document.body.appendChild(canvas);
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Draw original image
+            ctx.drawImage(img, 0, 0);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Apply histogram equalization
+            const equalizedData = histogramEqualization(data);
+            
+            const equalizedCanvas = document.createElement('canvas');
+            const equalizedCtx = equalizedCanvas.getContext('2d');
+            equalizedCanvas.width = canvas.width;
+            equalizedCanvas.height = canvas.height;
+            document.body.appendChild(equalizedCanvas);
+
+            const equalizedImageData = new ImageData(
+                new Uint8ClampedArray(equalizedData),
+                canvas.width,
+                canvas.height
+            );
+            equalizedCtx.putImageData(equalizedImageData, 0, 0);
+
+            // Apply unsharp masking
+            const unsharpData = unsharpMask(data, canvas.width, canvas.height);
+            
+            const unsharpCanvas = document.createElement('canvas');
+            const unsharpCtx = unsharpCanvas.getContext('2d');
+            unsharpCanvas.width = canvas.width;
+            unsharpCanvas.height = canvas.height;
+            document.body.appendChild(unsharpCanvas);
+
+            const unsharpImageData = new ImageData(
+                new Uint8ClampedArray(unsharpData),
+                canvas.width,
+                canvas.height
+            );
+            unsharpCtx.putImageData(unsharpImageData, 0, 0);
+        }
+    </script>
+</body>
+</html>
+ 
+</script>
 </body>
 </html>
 
